@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Order #{{ order.order_id }}</h1>
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header"><h4>Order Items</h4></div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr><th>Product</th><th>Price</th><th>Quantity</th><th>Total</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td>{{ item.product.name }}</td>
+                                <td>${{ item.price }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>${{ item.total_price }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header"><h4>Order Info</h4></div>
+                <div class="card-body">
+                    <p><strong>Status:</strong> {{ order.get_status_display }}</p>
+                    <p><strong>Date:</strong> {{ order.created_at|date:"M d, Y" }}</p>
+                    <p><strong>Total:</strong> ${{ order.total_amount }}</p>
+                    <p><strong>Payment:</strong> {% if order.is_paid %}Paid{% else %}Pending{% endif %}</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><h4>Shipping Address</h4></div>
+                <div class="card-body">
+                    <p>{{ order.full_name }}<br>{{ order.address }}<br>{{ order.city }}, {{ order.state }} {{ order.pincode }}<br>{{ order.phone }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

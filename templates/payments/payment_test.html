@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Razorpay Test</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+    <h1>Razorpay Direct Test</h1>
+    <button id="test-btn" style="padding: 20px; font-size: 18px; background: #3399cc; color: white; border: none; cursor: pointer;">
+        Test Razorpay Payment
+    </button>
+
+    <div id="result" style="margin-top: 20px; padding: 20px; background: #f0f0f0;"></div>
+
+    <script>
+        console.log('Test page loaded');
+        
+        // Check if Razorpay is loaded
+        if (typeof Razorpay === 'undefined') {
+            document.getElementById('result').innerHTML = '<p style="color: red;">ERROR: Razorpay script not loaded!</p>';
+        } else {
+            document.getElementById('result').innerHTML = '<p style="color: green;">✓ Razorpay script loaded successfully</p>';
+        }
+
+        document.getElementById('test-btn').onclick = function() {
+            console.log('Button clicked');
+            
+            var options = {
+                "key": "rzp_test_SIs21qSvGhe64m",
+                "amount": 10000, // ₹100
+                "currency": "INR",
+                "name": "Test Store",
+                "description": "Test Payment",
+                "handler": function (response){
+                    console.log('Payment Success:', response);
+                    document.getElementById('result').innerHTML = 
+                        '<p style="color: green;">✓ Payment Successful!</p>' +
+                        '<p>Payment ID: ' + response.razorpay_payment_id + '</p>';
+                },
+                "modal": {
+                    "ondismiss": function(){
+                        console.log('Payment cancelled');
+                        document.getElementById('result').innerHTML = 
+                            '<p style="color: orange;">Payment cancelled by user</p>';
+                    }
+                }
+            };
+            
+            console.log('Creating Razorpay instance with options:', options);
+            
+            try {
+                var rzp = new Razorpay(options);
+                
+                rzp.on('payment.failed', function (response){
+                    console.error('Payment failed:', response.error);
+                    document.getElementById('result').innerHTML = 
+                        '<p style="color: red;">✗ Payment Failed</p>' +
+                        '<p>' + response.error.description + '</p>';
+                });
+                
+                console.log('Opening Razorpay modal...');
+                rzp.open();
+            } catch(error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = 
+                    '<p style="color: red;">ERROR: ' + error.message + '</p>';
+            }
+        };
+    </script>
+</body>
+</html>

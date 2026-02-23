@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Payment</h1>
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-header"><h4>Order #{{ order.order_id }}</h4></div>
+                <div class="card-body">
+                    <p><strong>Amount:</strong> ₹{{ order.total_amount }}</p>
+                    <p><strong>Status:</strong> <span class="badge bg-warning">Pending Payment</span></p>
+                    <hr>
+                    
+                    {% if payment_method == 'razorpay' %}
+                    <h5>Pay with Razorpay</h5>
+                    <p class="text-muted small">Secure payment powered by Razorpay</p>
+                    <button id="rzp-button" class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-lock"></i> Pay ₹{{ order.total_amount }} Now
+                    </button>
+                    
+                    <div class="mt-3 text-center">
+                        <small class="text-muted">
+                            Test Mode: Use card 4111 1111 1111 1111
+                        </small>
+                    </div>
+                    
+                    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+                    <script>
+                    console.log('Razorpay Key:', '{{ razorpay_key_id }}');
+                    console.log('Order ID:', '{{ razorpay_order_id }}');
+                    console.log('Amount:', {{ order.total_amount|floatformat:2 }});
+                    
+                    var options = {
+                        "key": "{{ razorpay_key_id }}",
+                        "amount": {{ order.total_amount|floatformat:2|stringformat:"s"|cut:"." }}00,
+                        "currency": "INR",
+                        "name": "NovaMart",
+                        "description": "Order Payment",
+                        "image": "https://cdn.razorpay.com/logos/7K3b6d18wHwKzL_medium.png",
+                        "order_id": "{{ razorpay_order_id }}",
+                        "prefill": {
+                            "name": "{{ order.user.get_full_name|default:order.user.username }}",
+                            "email": "{{ order.user.email }}",
+                            "contact": ""
+                        },
+                        "notes": {
+                            "order_id": "{{ order.order_id }}"
+                        },
+                        "theme": {
+                            "color": "#3399cc"
+                        },
+                        "handler": function (response){
+                            console.log('Payment Success:', response);
+                            
+                            var form = document.createElement('form');
+                            form.method = 'POST';
+                            form.action = '{% url "payments:razorpay_callback" %}';
+                            
+                            var fields = {
+                                'razorpay_payment_id': response.razorpay_payment_id,
+                                'razorpay_order_id': response.razorpay_order_id,
+                                'razorpay_signature': response.razorpay_signature,
+                                'order_uuid': '{{ order.order_id }}',
+                                'csrfmiddlewaretoken': '{{ csrf_token }}'
+                            };
+                            
+                            for(var key in fields) {
+                                var input = document.createElement('input');
+                                input.type = 'hidden';
+                                input.name = key;
+                                input.value = fields[key];
+                                form.appendChild(input);
+                            }
+                            
+                            document.body.appendChild(form);
+                            form.submit();
+                        },
+                        "modal": {
+                            "ondismiss": function(){
+                                console.log('Payment cancelled by user');
+                                alert('Payment cancelled. You can try again.');
+                            }
+                        }
+                    };
+                    
+                    console.log('Razorpay Options:', options);
+                    
+                    var rzp = new Razorpay(options);
+                    
+                    rzp.on('payment.failed', function (response){
+                        console.error('Payment Failed:', response.error);
+                        alert('Payment failed: ' + response.error.description);
+                        window.location.href = '{% url "payments:payment_failed" order.order_id %}';
+                    });
+                    
+                    document.getElementById('rzp-button').onclick = function(e){
+                        e.preventDefault();
+                        console.log('Opening Razorpay modal...');
+                        try {
+                            rzp.open();
+                        } catch(error) {
+                            console.error('Error opening Razorpay:', error);
+                            alert('Error opening payment gateway. Please refresh and try again.');
+                        }
+                    }
+                    </script>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mt-3 text-center">
+                <a href="{% url 'orders:order_detail' order.order_id %}" class="btn btn-link">
+                    Cancel and go back to order
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

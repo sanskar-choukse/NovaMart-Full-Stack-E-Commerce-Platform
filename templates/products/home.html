@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - NovaMart{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="jumbotron">
+        <h1 class="display-4">Welcome to NovaMart</h1>
+        <p class="lead">Shop quality products at great prices with fast, free delivery</p>
+        <a class="btn btn-primary btn-lg" href="{% url 'products:shop' %}" role="button">Shop Now</a>
+    </div>
+
+    <!-- Featured Products -->
+    <div class="mb-4">
+        <h2 class="section-heading">Featured Products</h2>
+        <div class="row g-3">
+            {% for product in products %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="card">
+                    <a href="{% url 'products:detail' product.slug %}">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                        {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                        </div>
+                        {% endif %}
+                    </a>
+                    <div class="card-body">
+                        <a href="{% url 'products:detail' product.slug %}" class="text-decoration-none">
+                            <h5 class="card-title">{{ product.name|truncatewords:8 }}</h5>
+                        </a>
+                        <div class="mb-2">
+                            {% if product.discount_price %}
+                            <div>
+                                <span class="fw-bold">${{ product.discount_price }}</span>
+                                <span class="text-muted ms-2">${{ product.price }}</span>
+                            </div>
+                            {% else %}
+                            <span class="fw-bold">${{ product.price }}</span>
+                            {% endif %}
+                        </div>
+                        {% if product.stock > 0 %}
+                        <small class="text-success">In Stock</small>
+                        {% else %}
+                        <small class="text-danger">Out of Stock</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No featured products available at the moment.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            </li>
+            {% endif %}
+            <li class="page-item active">
+                <span class="page-link">{{ page_obj.number }}</span>
+            </li>
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

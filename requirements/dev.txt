@@ -1,0 +1,12 @@
+-r base.txt
+
+# Development Tools
+django-debug-toolbar==4.2.0
+
+# Testing
+coverage==7.4.0
+factory-boy==3.3.0
+
+# Code Quality
+flake8==7.0.0
+black==24.1.1

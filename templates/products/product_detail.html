@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} - NovaMart{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'products:home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'products:shop' %}">Shop</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'products:category' product.category.slug %}">{{ product.category.name }}</a></li>
+            <li class="breadcrumb-item active">{{ product.name|truncatewords:5 }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-5">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" class="img-fluid product-detail-img w-100" alt="{{ product.name }}">
+            {% else %}
+            <div class="bg-light d-flex align-items-center justify-content-center product-detail-img" style="height: 500px;">
+                <i class="fas fa-image fa-5x text-muted"></i>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-7">
+            <h1 style="font-size: 1.5rem; font-weight: 400; margin-bottom: 0.5rem;">{{ product.name }}</h1>
+            
+            <div class="mb-3" style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+                <a href="{% url 'products:category' product.category.slug %}" style="font-size: 0.875rem; color: var(--text-secondary);">
+                    Visit the {{ product.category.name }} Store
+                </a>
+            </div>
+            
+            <div class="mb-3">
+                {% if product.discount_price %}
+                <div class="d-flex align-items-baseline gap-2 mb-2">
+                    <span style="font-size: 0.875rem; color: var(--text-secondary);">-{{ product.discount_percentage }}%</span>
+                    <span class="fw-bold" style="font-size: 1.75rem;">${{ product.discount_price }}</span>
+                </div>
+                <div style="font-size: 0.8125rem; color: var(--text-secondary);">
+                    List Price: <span class="text-decoration-line-through">${{ product.price }}</span>
+                </div>
+                {% else %}
+                <span class="fw-bold" style="font-size: 1.75rem;">${{ product.price }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3" style="padding: 1rem 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                <p style="font-size: 0.875rem; line-height: 1.6; margin-bottom: 0;">{{ product.description }}</p>
+            </div>
+            
+            <div class="price-box">
+                <div class="mb-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <strong style="font-size: 0.875rem;">Availability:</strong>
+                        {% if product.is_in_stock %}
+                        <span class="text-success" style="font-size: 0.875rem; font-weight: 600;">In Stock</span>
+                        {% else %}
+                        <span class="text-danger" style="font-size: 0.875rem; font-weight: 600;">Out of Stock</span>
+                        {% endif %}
+                    </div>
+                    {% if product.is_in_stock and product.stock < 10 %}
+                    <p style="font-size: 0.8125rem; color: var(--danger-color); margin-bottom: 0;">
+                        Only {{ product.stock }} left in stock - order soon.
+                    </p>
+                    {% endif %}
+                </div>
+                
+                {% if product.is_in_stock %}
+                <form method="post" action="{% url 'cart:cart_add' product.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label" style="font-weight: 600; font-size: 0.875rem;">Quantity:</label>
+                        <select name="quantity" id="quantity" class="form-select" style="width: 80px;">
+                            {% for i in "12345678910"|make_list %}
+                            <option value="{{ forloop.counter }}">{{ forloop.counter }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="d-grid gap-2 mb-3">
+                        <button type="submit" class="btn btn-primary" style="padding: 0.75rem;">
+                            Add to Cart
+                        </button>
+                        <a href="{% url 'products:shop' %}" class="btn btn-outline-secondary">
+                            Continue Shopping
+                        </a>
+                    </div>
+                </form>
+                {% else %}
+                <div class="alert alert-warning mb-0" style="font-size: 0.875rem;">
+                    This product is currently out of stock.
+                </div>
+                {% endif %}
+                
+                <div class="mt-3" style="font-size: 0.8125rem; color: var(--text-secondary);">
+                    <div class="mb-2"><i class="fas fa-truck me-2"></i>FREE delivery on orders over $50</div>
+                    <div class="mb-2"><i class="fas fa-undo me-2"></i>30-day return policy</div>
+                    <div><i class="fas fa-shield-alt me-2"></i>Secure transaction</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Related Products -->
+    {% if related_products %}
+    <hr class="my-4">
+    <h3 class="section-heading">Related Products</h3>
+    <div class="row g-3">
+        {% for related in related_products %}
+        <div class="col-lg-3 col-md-4 col-sm-6">
+            <div class="card">
+                <a href="{% url 'products:detail' related.slug %}">
+                    {% if related.image %}
+                    <img src="{{ related.image.url }}" class="card-img-top" alt="{{ related.name }}">
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                </a>
+                <div class="card-body">
+                    <a href="{% url 'products:detail' related.slug %}" class="text-decoration-none">
+                        <h5 class="card-title">{{ related.name|truncatewords:6 }}</h5>
+                    </a>
+                    <p class="fw-bold mb-0">${{ related.get_price }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

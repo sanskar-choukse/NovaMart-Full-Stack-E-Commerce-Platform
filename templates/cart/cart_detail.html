@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Shopping Cart{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Shopping Cart</h1>
+    
+    {% if cart_items %}
+    <div class="row">
+        <div class="col-md-8">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr>
+                        <td>
+                            {% if user.is_authenticated %}
+                            {{ item.product.name }}
+                            {% else %}
+                            {{ item.product.name }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_authenticated %}
+                            ${{ item.product.get_price }}
+                            {% else %}
+                            ${{ item.price }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="post" action="{% if user.is_authenticated %}{% url 'cart:cart_update' item.product.id %}{% else %}{% url 'cart:cart_update' item.product.id %}{% endif %}" class="d-inline">
+                                {% csrf_token %}
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control" style="width: 80px;" onchange="this.form.submit()">
+                            </form>
+                        </td>
+                        <td>
+                            {% if user.is_authenticated %}
+                            ${{ item.total_price }}
+                            {% else %}
+                            ${{ item.total_price }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="post" action="{% if user.is_authenticated %}{% url 'cart:cart_remove' item.product.id %}{% else %}{% url 'cart:cart_remove' item.product.id %}{% endif %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header"><h4>Order Summary</h4></div>
+                <div class="card-body">
+                    <p>Subtotal: <strong>${{ total }}</strong></p>
+                    <p>Shipping: <strong>Free</strong></p>
+                    <hr>
+                    <h4>Total: ${{ total }}</h4>
+                    <a href="{% url 'orders:checkout' %}" class="btn btn-primary w-100 mt-3">Proceed to Checkout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">Your cart is empty. <a href="{% url 'products:shop' %}">Continue shopping</a></div>
+    {% endif %}
+</div>
+{% endblock %}
