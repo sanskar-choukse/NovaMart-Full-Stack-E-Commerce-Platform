@@ -1,61 +1,68 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 
 {% block title %}Shop - NovaMart{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="section-heading">{% if current_category %}{{ current_category.name }}{% else %}All Products{% endif %}</h1>
-    
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3">
-            <div class="sidebar-sticky">
-                <div class="card mb-3">
-                    <div class="card-header">Categories</div>
-                    <div class="list-group list-group-flush category-list">
-                        <a href="{% url 'products:shop' %}" class="list-group-item">All Products</a>
-                        {% for category in categories %}
-                        <a href="{% url 'products:category' category.slug %}" class="list-group-item">{{ category.name }}</a>
-                        {% endfor %}
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">Filter by Price</div>
-                    <div class="card-body">
-                        <form method="get">
-                            <div class="mb-2">
-                                <label class="form-label" style="font-size: 0.8125rem; font-weight: 600;">Min Price</label>
-                                <input type="number" name="min_price" class="form-control form-control-sm" placeholder="$0">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label" style="font-size: 0.8125rem; font-weight: 600;">Max Price</label>
-                                <input type="number" name="max_price" class="form-control form-control-sm" placeholder="$1000">
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-sm w-100">Apply Filter</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+<!-- Horizontal Categories Bar - Sticky below navbar -->
+<div class="categories-bar-sticky">
+    <div class="container-fluid">
+        <div class="category-scroll">
+            <a href="{% url 'products:shop' %}" class="category-chip {% if not current_category %}active{% endif %}">All Products</a>
+            {% for category in categories %}
+            <a href="{% url 'products:category' category.slug %}" class="category-chip {% if current_category.id == category.id %}active{% endif %}">{{ category.name }}</a>
+            {% endfor %}
         </div>
-        
-        <!-- Products -->
-        <div class="col-md-9">
-            <div class="row mb-3 align-items-center">
-                <div class="col-md-6">
-                    <p class="mb-0" style="font-size: 0.875rem; color: var(--text-secondary);">
-                        {{ page_obj.paginator.count }} results
-                    </p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- Products - Full Width -->
+        <div class="col-12">
+            <!-- Heading, Filter Toggle and Sort Dropdown - Same Line -->
+            <div class="d-flex justify-content-between align-items-center mb-3" style="padding: 0.5rem 0 0.75rem 0;">
+                <div style="flex: 0 0 auto;">
+                    <h1 class="mb-0" style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary); padding-left: 0;">
+                        {% if current_category %}{{ current_category.name }}{% else %}All Products{% endif %}
+                    </h1>
                 </div>
-                <div class="col-md-6 text-end">
+                <div class="d-flex gap-2" style="flex: 0 0 auto; margin-left: auto;">
+                    <!-- Filter Toggle Button -->
+                    <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                    <!-- Sort Dropdown -->
                     <form method="get" class="d-inline">
-                        <select name="sort" class="form-select d-inline w-auto" style="font-size: 0.875rem;" onchange="this.form.submit()">
+                        <select name="sort" class="form-select" style="font-size: 0.875rem; min-width: 220px; border: 1px solid #d5d9d9; border-radius: 6px; padding: 0.625rem 2.5rem 0.625rem 0.875rem; background-color: #ffffff; font-weight: 500; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.08);" onchange="this.form.submit()">
                             <option value="-created_at">Sort by: Featured</option>
                             <option value="price">Price: Low to High</option>
                             <option value="-price">Price: High to Low</option>
                             <option value="name">Name: A-Z</option>
                         </select>
                     </form>
+                </div>
+            </div>
+            
+            <!-- Collapsible Filter Section -->
+            <div class="collapse mb-3" id="filterCollapse">
+                <div class="card" style="border: 1px solid #d5d9d9; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <div class="card-body" style="padding: 1.25rem;">
+                        <h5 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-primary);">Filter by Price</h5>
+                        <form method="get" class="d-flex align-items-end gap-3 flex-wrap">
+                            <div style="flex: 0 0 auto;">
+                                <label class="form-label" style="font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.3rem;">Min Price</label>
+                                <input type="number" name="min_price" class="form-control form-control-sm" placeholder="$0" style="width: 140px;">
+                            </div>
+                            <div style="flex: 0 0 auto;">
+                                <label class="form-label" style="font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.3rem;">Max Price</label>
+                                <input type="number" name="max_price" class="form-control form-control-sm" placeholder="$1000" style="width: 140px;">
+                            </div>
+                            <div style="flex: 0 0 auto;">
+                                <button type="submit" class="btn btn-primary btn-sm" style="padding: 0.375rem 1.75rem;">Apply Filter</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
             
