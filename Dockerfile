@@ -25,6 +25,10 @@ COPY . /app/
 # Collect static files
 RUN python manage.py collectstatic --noinput --settings=config.settings.prod || true
 
+# Copy startup script
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
 # Create media directory
 RUN mkdir -p /app/media
 
@@ -32,4 +36,4 @@ RUN mkdir -p /app/media
 EXPOSE 8000
 
 # Run gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "config.wsgi:application"]
+CMD ["/app/start.sh"]
