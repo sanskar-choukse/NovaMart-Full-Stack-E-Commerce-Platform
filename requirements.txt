@@ -25,7 +25,7 @@ Flask-Login==0.6.3
 Flask-SQLAlchemy==3.0.5
 Flask-WTF==1.1.1
 greenlet==3.3.1
-gunicorn==20.1.0
+gunicorn==22.0.0
 h11==0.16.0
 idna==3.11
 itsdangerous==2.2.0
@@ -47,7 +47,6 @@ pytz==2025.2
 razorpay==2.0.0
 requests==2.32.5
 rsa==4.9.1
-setuptools==82.0.0
 six==1.17.0
 SQLAlchemy==2.0.46
 sqlparse==0.5.5
@@ -61,4 +60,3 @@ uvicorn==0.41.0
 Werkzeug==2.3.7
 whitenoise==6.6.0
 WTForms==3.0.1
-setuptools>=65.0.0
