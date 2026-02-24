@@ -31,7 +31,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # WhiteNoise for static files
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Security Settings
 SECURE_SSL_REDIRECT = True
