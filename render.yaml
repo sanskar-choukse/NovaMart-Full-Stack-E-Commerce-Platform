@@ -11,7 +11,7 @@ services:
     name: novamart
     runtime: python
     plan: free
-    buildCommand: pip install --upgrade pip && pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate
+    buildCommand: ./build.sh
     startCommand: gunicorn config.wsgi:application
     envVars:
       - key: PYTHON_VERSION
