@@ -35,7 +35,7 @@ A full-stack online shopping application with user authentication, product manag
 **Server:** Gunicorn, Docker support
 
 ## Project Structure
-
+```
 ecommerce/
 ├── apps/                      # Django applications
 │   ├── users/                # User authentication & profiles
@@ -52,7 +52,7 @@ ecommerce/
 ├── media/                     # User uploads (local dev)
 ├── requirements/              # Dependencies (base, dev, prod)
 └── manage.py                  # Django management script
-
+```
 
 ## Key Models
 
